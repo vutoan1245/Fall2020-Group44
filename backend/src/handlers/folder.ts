@@ -1,5 +1,6 @@
 import { APIGatewayEvent, ProxyResult } from 'aws-lambda';
-import { Folder } from '../models/Folder';
+import { Folder, Question, QuestionOption } from '../models';
+import responses from '../util/api/responses';
 
 const mockUserid = 1;
 
@@ -8,35 +9,29 @@ const getFolder = async (event: APIGatewayEvent): Promise<ProxyResult> => {
 	const params = event.queryStringParameters;
 
 	if (!params?.courseId) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify({
-				message: 'Missing parameters',
-			}),
-		};
+		return responses.badRequest({
+			message: 'Missing parameter: courseId',
+		});
 	}
 
 	try {
-		const result = await Folder.findAll({
+		const result = await Folder.findOne({
 			where: {
-				userId: mockUserid,
-				courseId: params?.courseId,
+				id: params.courseId,
+			},
+			include: {
+				model: Question,
+				include: [QuestionOption],
 			},
 		});
 
-		return {
-			statusCode: 200,
-			body: JSON.stringify({
-				folderList: result,
-			}),
-		};
+		return responses.ok({
+			folder: result,
+		});
 	} catch (error) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify({
-				message: error.name || 'Fail to query',
-			}),
-		};
+		return responses.badRequest({
+			message: error || 'Fail to query',
+		});
 	}
 };
 
@@ -47,17 +42,10 @@ const newFolder = async (event: APIGatewayEvent): Promise<ProxyResult> => {
 
 	// eslint-disable-next-line no-constant-condition
 	if (!params?.courseId) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify({
-				message: 'Missing parameters',
-				event,
-			}),
-		};
+		return responses.badRequest({
+			message: 'Missing parameter: courseId',
+		});
 	}
-
-	console.log(params.courseId);
-	console.log(body);
 
 	try {
 		const result = await Folder.create({
@@ -66,20 +54,14 @@ const newFolder = async (event: APIGatewayEvent): Promise<ProxyResult> => {
 			courseId: params?.courseId as string,
 		});
 
-		return {
-			statusCode: 200,
-			body: JSON.stringify({
-				message: 'Success',
-				data: result,
-			}),
-		};
+		return responses.ok({
+			message: 'Success',
+			data: result,
+		});
 	} catch (error) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify({
-				message: error.name || 'Fail to create',
-			}),
-		};
+		return responses.badRequest({
+			message: error || 'Fail to create',
+		});
 	}
 };
 
@@ -89,12 +71,9 @@ const updateFolder = async (event: APIGatewayEvent): Promise<ProxyResult> => {
 	const params = event.queryStringParameters;
 
 	if (!params?.folderId) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify({
-				message: 'Missing parameters',
-			}),
-		};
+		return responses.badRequest({
+			message: 'Missing parameter: folderId',
+		});
 	}
 
 	try {
@@ -102,19 +81,14 @@ const updateFolder = async (event: APIGatewayEvent): Promise<ProxyResult> => {
 			{ name: body.name as string },
 			{ where: { id: params?.folderId } }
 		);
-		return {
-			statusCode: 200,
-			body: JSON.stringify({
-				message: 'Success',
-			}),
-		};
+
+		return responses.ok({
+			message: 'Success',
+		});
 	} catch (error) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify({
-				message: error.name || 'Fail to update',
-			}),
-		};
+		return responses.badRequest({
+			message: error || 'Fail to update',
+		});
 	}
 };
 
@@ -123,29 +97,20 @@ const deleteFolder = async (event: APIGatewayEvent): Promise<ProxyResult> => {
 	const params = event.queryStringParameters;
 
 	if (!params?.folderId) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify({
-				message: 'Missing parameters',
-			}),
-		};
+		return responses.badRequest({
+			message: 'Missing parameter: folderId',
+		});
 	}
 
 	try {
 		await Folder.destroy({ where: { id: params?.folderId } });
-		return {
-			statusCode: 200,
-			body: JSON.stringify({
-				message: 'Success',
-			}),
-		};
+		return responses.ok({
+			message: 'Success',
+		});
 	} catch (error) {
-		return {
-			statusCode: 400,
-			body: JSON.stringify({
-				message: error.name || 'Fail to create',
-			}),
-		};
+		return responses.badRequest({
+			message: error || 'Fail to create',
+		});
 	}
 };
 
