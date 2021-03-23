@@ -13,5 +13,7 @@ interface QuestionCreationAttributes {
 	courseId: CourseId;
 	question: string;
 	title: string;
-	QuestionOptions: Array<QuestionOption>;
+	participationPoints?: number;
+	correctnessPoints?: number;
+	QuestionOptions?: Array<QuestionOption>;
 }
