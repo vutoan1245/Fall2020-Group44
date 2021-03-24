@@ -32,7 +32,7 @@ export const Question: ModelDefined<
 		allowNull: false,
 		defaultValue: 0.5,
 	},
-	correctnesssPoints: {
+	correctnessPoints: {
 		type: DataTypes.DOUBLE,
 		allowNull: false,
 		defaultValue: 0.5,

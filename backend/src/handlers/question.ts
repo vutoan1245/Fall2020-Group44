@@ -57,6 +57,8 @@ const create = async (event: APIGatewayEvent): Promise<ProxyResult> => {
 				question: String(body.question),
 				folderId: Number(body.folderId) || null,
 				courseId: String(body.courseId),
+				participationPoints: Number(body.participationPoints) || 0.5,
+				correctnessPoints: Number(body.correctnessPoints) || 0.5,
 				QuestionOptions: body.questionOptions,
 			},
 			{
